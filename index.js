@@ -28,7 +28,7 @@ const client = new MongoClient(uri, {
 async function run() {
 
     try {
-        const projectCollection = client.db('portfolioProject').collection('Projects');
+        const projectCollection = client.db('myPortfolio').collection('Projects');
 
         app.get('/projects',async(req,res) =>{
             const result = await projectCollection.find().toArray()
@@ -40,6 +40,24 @@ async function run() {
             const result = await projectCollection.findOne(query)
             res.send(result)
         })
+        
+        app.get('/projectsSearch/:text', async (req, res) => {
+            const searchProject = req.params.text;
+            console.log(searchProject)
+            const result = await projectCollection.find({
+                $or: [
+                    { tec: { $regex: searchProject, $options: "i" } },
+                    { 
+                        id: { $regex: searchProject, $options: "i" }  }
+                ]
+            }).toArray();
+            console.log(result)
+            res.send(result);
+        });
+        
+     
+        
+      
         
         client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
